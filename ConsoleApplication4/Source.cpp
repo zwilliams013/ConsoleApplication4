@@ -3,7 +3,7 @@
 #include<fstream>	
 #include<vector>
 
-//
+//Tested vector buffer
 
 using namespace std;
 
