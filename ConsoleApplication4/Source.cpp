@@ -3,6 +3,7 @@
 #include<fstream>	
 #include<vector>
 #include <stdbool.h>
+#include <deque>
 #include <stack>
 
 
@@ -12,9 +13,7 @@ using namespace std;
 
 struct cell {
 	vector<char> buff;
-	int xcoord;
-	int ycoord;
-	int zcoord;
+	int xcoord, ycoord, zcoord;
 	bool visited;
 	bool end;
 };
@@ -51,8 +50,29 @@ currentPos = maze[i-1][j][k];
 */
 
 void printCell(cell cells) {
-	cout << cells.xcoord << "," << cells.ycoord << "," << cells.zcoord;
+	cout << endl;
+	cout << "(" << cells.xcoord << "," << cells.ycoord << "," << cells.zcoord << ")";
+	cout << " ";
+	for (int i = 0; i < 6; i++) {                                      //delete when done, used to see if directions were working
+		cout << cells.buff[i];
+	}cout << " ";
 }
+
+void printStack(stack<cell> S) {
+	stack<cell> reverse;
+	while (!S.empty()) {
+		reverse.push(S.top());
+		S.pop();
+	}
+
+
+	while (!reverse.empty()) {
+		cell n = reverse.top();
+		cout << "(" << n.xcoord << "," << n.ycoord << "," << n.ycoord << ") ";
+		reverse.pop();
+	}
+}
+
 
 int main() {
 
@@ -63,12 +83,8 @@ int main() {
 	//vector<char> buffer;     
 	int problems;
 	int levels, rows, columns;
-	int startx;  //starting cell x coord
-	int starty;  //starting cell y coord
-	int startz;  //starting cell z coord
-	int endx;  //ending cell x coord
-	int endy;  //ending cell y coord
-	int endz;  //ending cell z coord
+	int startx, starty, startz;  //starting cell coord
+	int endx, endy, endz;  //ending cell coord
 	vector< vector < vector<cell > > >maze;   //create maze
 
 
@@ -93,27 +109,24 @@ int main() {
 	cout << "Levels : " << levels << " Rows: " << rows << " Colums: " << columns << endl; //prints our levels, rows, and columns
 
 	cout << "Start: (" << startx << "," << starty << "," << startz << ")\n";             //print out start coord
-	cout << "End: (" << endx << "," << endy << "," << endz << ")\n";                     //print out end coord
-																						 //***************************************************************************************
+	cout << "End: (" << endx << "," << endy << "," << endz << ")\n\n";                     //print out end coord
+																						   //***************************************************************************************
 
 
 
-																						 //Resize maze
-	maze.resize(rows);
-	for (int i = 0; i < rows; i++) {
-		maze[i].resize(columns);
-		for (int j = 0; j < columns; j++) {
-			maze[i][j].resize(levels);
+																						   //Resize maze
+	maze.resize(levels);
+	for (int i = 0; i < levels; i++) {
+		maze[i].resize(rows);
+		for (int j = 0; j < rows; j++) {
+			maze[i][j].resize(columns);
 		}
 	}
 
-
-
-
 	//Set up coordinates
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < columns; j++) {
-			for (int k = 0; k < levels; k++) {
+	for (int i = 0; i < levels; i++) {
+		for (int j = 0; j < rows; j++) {
+			for (int k = 0; k < columns; k++) {
 				maze[i][j][k].xcoord = i;
 				maze[i][j][k].ycoord = j;
 				maze[i][j][k].zcoord = k;
@@ -122,22 +135,24 @@ int main() {
 	}
 
 	//print out coordinates
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < columns; j++) {
-			for (int k = 0; k < levels; k++) {
+	for (int i = 0; i < levels; i++) {
+		for (int j = 0; j < rows; j++) {
+			for (int k = 0; k < columns; k++) {
 				cout << "(" << maze[i][j][k].xcoord << "," << maze[i][j][k].ycoord << "," << maze[i][j][k].zcoord << ")";
 			} cout << endl;
-		}
+		}cout << endl;
 	}
 
 
 	//Insert text file into cell buffers
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < columns; j++) {
-			for (int k = 0; k < levels; k++) {
+	for (int i = 0; i < levels; i++) {
+		for (int j = 0; j < rows; j++) {
+			for (int k = 0; k < columns; k++) {
 				for (int z = 0; z < 6; z++) {
 					fin >> mychar;
 					maze[i][j][k].buff.push_back(mychar);
+					maze[i][j][k].visited = false;
+					maze[i][j][k].end = false;
 					//cout << maze[i][j][k].buff[z];
 				}
 			}
@@ -146,16 +161,16 @@ int main() {
 
 
 	//Print out buffers of all the cells     ******DELETE WHEN DONE******
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < columns; j++) {
-			for (int k = 0; k < levels; k++) {
+	for (int i = 0; i < levels; i++) {
+		for (int j = 0; j < rows; j++) {
+			for (int k = 0; k < columns; k++) {
 				for (int z = 0; z < 6; z++) {
 					//cout << maze[i][j][k].buff.push_back(mychar);
 
 					cout << maze[i][j][k].buff[z];
 
-				} cout << endl;
-			}
+				}cout << " ";
+			}cout << endl;
 		}
 	}
 
@@ -166,90 +181,202 @@ int main() {
 
 
 	cell currentPos;              //keep track of current cell
+	cell endPos;
 	currentPos = maze[startx][starty][startz];
+	endPos = maze[endx][endy][endz];
 
-	stack<char> mazeDirections;
-	//checkNeighbors(currentPos);
+	deque<char> mazeDirections;              //create a deque to hold the directions
+	cout << endl;
 
-	//char x = '1';
-
-	/*
-	switch (maze[i][j][k].buff[i]) {
-	case maze[i][j][k].buff[i]:
-	cout << "N ";
-	break;
-	case '1':
-	cout << "E ";
-	break;
-	case '2':
-	cout << "S";
-	break;
-	case '3':
-	cout << "W ";
-	break;
-	case '4':
-	cout << "U ";
-	break;
-	case '5':
-	cout << "D ";
-	break;
-	default:
-	cout << "value of x unknown";
+	/*  for(int i = 0; i < 6; i++){                                      //delete when done, used to see if directions were working
+	cout << maze[1][0][0].buff[i];
 	}
 	*/
 	cout << endl;
 
-	for (int i = 0; i < 6; i++) {                                      //delete when done, used to see if directions were working
-		cout << maze[0][0][1].buff[i];
-	}
-
-	cout << endl;
-	cout << "Print cell : ";
-	printCell(currentPos);
-
-	//currentPos.xcoord = 3;
-	cout << endl;
-	cout << "Print cell : ";
-	printCell(currentPos);
 
 
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < columns; j++) {
-			for (int k = 0; k < levels; k++) {
+	int i = startx;
+	int j = starty;
+	int k = startz;
+	int count = 0;
+	printCell(maze[startx][starty][startz]);   //print the start cell
 
-				if (currentPos.buff[0] == '1') {
-					cout << "N ";
-					currentPos = maze[i][j - 1][k];
-					continue;
-				}
-				else if (currentPos.buff[1] == '1') {
-					cout << "E ";
-					currentPos = maze[i][j][k + 1];
-					continue;
-				}
-				else if (currentPos.buff[2] == '1') {
-					cout << "S ";
-					currentPos = maze[i][j + 1][k];
-					continue;
-				}
-				else if (currentPos.buff[3] == '1') {
-					cout << "W ";
-					currentPos = maze[i][j][k - 1];
-					continue;
-				}
-				else if (currentPos.buff[4] == '1') {
-					cout << "U ";
-					currentPos = maze[i + 1][j][k];
-					continue;
-				}
-				else if (currentPos.buff[5] == '1') {
-					cout << "D ";
-					currentPos = maze[i - 1][j][k];
-					continue;
-				}
+	stack<cell> mazeStack;
 
-			}
+	mazeStack.push(currentPos);
+	mazeStack.push(endPos);
+	cout << "Printing stack ";
+	printStack(mazeStack);
+
+
+	//DFS implementation
+	while (!maze[i][j][k].end) {
+		/*if (count == 55) {
+			break;
+		}*/
+		if (maze[i][j][k].buff[0] == '1' && maze[i][j - 1][k].visited != true) {
+			cout << "N ";
+			mazeDirections.push_back('N');
+			count++;
+			j -= 1;
+			currentPos = maze[i][j][k];
+			mazeStack.push(maze[i][j][k]);
+			maze[i][j][k].visited = true;
+			printCell(currentPos);
+			// continue;
 		}
+		else if (maze[i][j][k].buff[1] == '1' && maze[i][j][k + 1].visited != true) {
+			cout << "E ";
+			mazeDirections.push_back('E');
+			count++;
+			k += 1;
+			currentPos = maze[i][j][k];
+			mazeStack.push(maze[i][j][k]);
+			maze[i][j][k].visited = true;
+			printCell(currentPos);
+			//  continue;
+		}
+		else if (maze[i][j][k].buff[2] == '1' && maze[i][j + 1][k].visited != true) {
+			//   cout << "Count: " << count << endl;
+			count++;
+			cout << "S ";
+			mazeDirections.push_back('S');
+			j += 1;
+			currentPos = maze[i][j][k];
+			mazeStack.push(maze[i][j][k]);
+			maze[i][j][k].visited = true;
+			printCell(currentPos);
+			// continue;
+		}
+		else if (maze[i][j][k].buff[3] == '1' && maze[i][j][k - 1].visited != true) {
+			cout << "W ";
+			count++;
+			mazeDirections.push_back('W');
+			k -= 1;
+			currentPos = maze[i][j][k];
+			mazeStack.push(maze[i][j][k]);
+			maze[i][j][k].visited = true;
+			printCell(currentPos);
+			// continue;
+		}
+		else if (maze[i][j][k].buff[4] == '1' && maze[i + 1][j][k].visited != true) {
+			//cout << "Count: " << count << endl;
+			count++;
+			cout << "U ";
+			mazeDirections.push_back('U');
+			i += 1;
+			currentPos = maze[i][j][k];
+			mazeStack.push(maze[i][j][k]);
+			maze[i][j][k].visited = true;
+			printCell(currentPos);
+			//continue;
+		}
+		else if (maze[i][j][k].buff[5] == '1' && maze[i - 1][j][k].visited != true) {
+			count++;
+			cout << "D ";
+			mazeDirections.push_back('D');
+			i -= 1;
+			currentPos = maze[i][j][k];
+			mazeStack.push(maze[i][j][k]);
+			maze[i][j][k].visited = true;
+			printCell(currentPos);
+
+			//continue;
+		}
+		else {
+			mazeStack.pop();
+			mazeDirections.pop_front();
+			maze[i][j][k] = mazeStack.top();
+		}
+
+		/*
+		else if(maze[i][j][k].buff[0] == '1'){
+		cout << "N ";
+		count ++;
+		mazeDirections.push_back('N');
+		j-=1;
+		currentPos = maze[i][j][k];
+		maze[i][j][k].visited = true;
+		printCell(currentPos);
+		// continue;
+		}
+		else if(maze[i][j][k].buff[1] == '1'){
+		cout << "E ";
+		count ++;
+		mazeDirections.push_back('E');
+		k += 1;
+		currentPos = maze[i][j][k];
+		maze[i][j][k].visited = true;
+		printCell(currentPos);
+		//  continue;
+		}
+		else if(maze[i][j][k].buff[2] == '1'){
+		//   cout << "Count: " << count << endl;
+		count ++;
+		cout << "S ";
+		mazeDirections.push_back('S');
+		j+=1;
+		currentPos = maze[i][j][k];
+		maze[i][j][k].visited = true;
+		printCell(currentPos);
+		// continue;
+		}
+		else if(maze[i][j][k].buff[3] == '1'){
+		cout << "W ";
+		mazeDirections.push_back('W');
+		count ++;
+		k-=1;
+		currentPos = maze[i][j][k];
+		maze[i][j][k].visited = true;
+		printCell(currentPos);
+		// continue;
+		}
+		else if(maze[i][j][k].buff[4] == '1'){
+		//cout << "Count: " << count << endl;
+		count ++;
+		cout << "U ";
+		mazeDirections.push_back('U');
+		i += 1;
+		currentPos = maze[i][j][k];
+		currentPos.visited = true;
+		printCell(currentPos);
+		//continue;
+		}
+		else if(maze[i][j][k].buff[5] == '1'){
+		count ++;
+		cout << "D ";
+		mazeDirections.push_back('D');
+		i -= 1;
+		currentPos = maze[i][j][k];
+		maze[i][j][k].visited = true;
+		printCell(currentPos);
+		//continue;
+		}
+		}
+
+		/*
+		cout << "\n\n";
+		maze[1][1][1].visited = true;
+		cout << "Check " << maze[1][1][0].visited;
+		cout << "\n\n";
+		*/
+	}
+		///check visited functions makes a grid of 1s and 0s 
+		cout << "\n\n";
+		for (int i = 0; i < levels; i++) {
+			for (int j = 0; j < rows; j++) {
+				for (int k = 0; k < columns; k++) {
+					cout << maze[i][j][k].visited << " ";
+				} cout << endl;
+			}cout << endl;
+		}
+
+		for (int i = 0; i < mazeDirections.size(); i++) { //prints out the maze direction deque, this will be used for the output file
+			cout << mazeDirections[i] << " ";
+		}
+
+
+
 	}
 
-}
