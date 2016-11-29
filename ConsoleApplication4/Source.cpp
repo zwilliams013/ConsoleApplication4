@@ -2,6 +2,9 @@
 #include<stdio.h>
 #include<fstream>	
 #include<vector>
+#include <stdbool.h>
+#include <stack>
+
 
 //Tested vector buffer
 
@@ -12,9 +15,44 @@ struct cell {
 	int xcoord;
 	int ycoord;
 	int zcoord;
-
-	//buff.resize(6);
+	bool visited;
+	bool end;
 };
+
+/*
+void checkNeighbors(cell currentPos[i][j][k]){
+
+if(maze[i][j][k].buff[0] == '1'){
+cout << "N ";
+currentPos = maze[i][j-1][k];
+}
+if(maze[i][j][k].buff[1] == '1'){
+cout << "E ";
+currentPos = maze[i][j][k+1];
+}
+if(maze[i][j][k].buff[2] == '1'){
+cout << "S ";
+currentPos = maze[i][j+1][k];
+}
+if(maze[i][j][k].buff[3] == '1'){
+cout << "W ";
+currentPos = maze[i][j][k-1];
+}
+if(maze[i][j][k].buff[4] == '1'){
+cout << "U ";
+currentPos = maze[i+1][j][k];
+}
+if(maze[i][j][k].buff[5] == '1'){
+cout << "D ";
+currentPos = maze[i-1][j][k];
+}
+
+}
+*/
+
+void printCell(cell cells) {
+	cout << cells.xcoord << "," << cells.ycoord << "," << cells.zcoord;
+}
 
 int main() {
 
@@ -25,24 +63,42 @@ int main() {
 	//vector<char> buffer;     
 	int problems;
 	int levels, rows, columns;
-	
-	
-	//take input from text file
+	int startx;  //starting cell x coord
+	int starty;  //starting cell y coord
+	int startz;  //starting cell z coord
+	int endx;  //ending cell x coord
+	int endy;  //ending cell y coord
+	int endz;  //ending cell z coord
+	vector< vector < vector<cell > > >maze;   //create maze
+
+
+
+											  //take input from text file
 	fin >> problems;
 	fin >> levels;
 	fin >> rows;
 	fin >> columns;
-	
 
-	cout << "Probs :" << problems << endl;
-	cout << "Levels : " << levels << " Rows: " << rows << " Colums: " << columns << endl;
+	fin >> startx;
+	fin >> starty;
+	fin >> startz;
+
+	fin >> endx;
+	fin >> endy;
+	fin >> endz;
 
 
-	//create maze
-	vector< vector < vector<cell > > >maze;
+	//***************************************************************************************DELETE WHEN DONE
+	cout << "Probs :" << problems << endl;                                                //prints our # of problems
+	cout << "Levels : " << levels << " Rows: " << rows << " Colums: " << columns << endl; //prints our levels, rows, and columns
+
+	cout << "Start: (" << startx << "," << starty << "," << startz << ")\n";             //print out start coord
+	cout << "End: (" << endx << "," << endy << "," << endz << ")\n";                     //print out end coord
+																						 //***************************************************************************************
 
 
-	//Resize maze
+
+																						 //Resize maze
 	maze.resize(rows);
 	for (int i = 0; i < rows; i++) {
 		maze[i].resize(columns);
@@ -69,7 +125,7 @@ int main() {
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns; j++) {
 			for (int k = 0; k < levels; k++) {
-				cout << "(" << maze[i][j][k].xcoord << "," << maze[i][j][k].ycoord  << "," << maze[i][j][k].zcoord << ")";
+				cout << "(" << maze[i][j][k].xcoord << "," << maze[i][j][k].ycoord << "," << maze[i][j][k].zcoord << ")";
 			} cout << endl;
 		}
 	}
@@ -95,94 +151,105 @@ int main() {
 			for (int k = 0; k < levels; k++) {
 				for (int z = 0; z < 6; z++) {
 					//cout << maze[i][j][k].buff.push_back(mychar);
-				
+
 					cout << maze[i][j][k].buff[z];
-					
+
 				} cout << endl;
 			}
 		}
 	}
 
-	//for (int i = 0; i < maze.size(); i++) {
-	/*	if (mychar == ' ') {
-			//continue;
-			fin.get(spaces);
-		}*/
+
+	//assign start and end cells in the maze
+	maze[startx][starty][startz].visited = true;
+	maze[endx][endy][endz].end = true;
+
+
+	cell currentPos;              //keep track of current cell
+	currentPos = maze[startx][starty][startz];
+
+	stack<char> mazeDirections;
+	//checkNeighbors(currentPos);
+
+	//char x = '1';
+
 	/*
-
-		for (int j = 0; j < 6; j++) {
-				//while (!fin.eof()) {
-				fin >> mychar;
-		//		if (mychar == ' ' || mychar == '\n') {
-			//		//continue;
-			//	}
-				
-				maze[i][j][z].buff.push_back(mychar);
-				//}
-			}
-
-		}
+	switch (maze[i][j][k].buff[i]) {
+	case maze[i][j][k].buff[i]:
+	cout << "N ";
+	break;
+	case '1':
+	cout << "E ";
+	break;
+	case '2':
+	cout << "S";
+	break;
+	case '3':
+	cout << "W ";
+	break;
+	case '4':
+	cout << "U ";
+	break;
+	case '5':
+	cout << "D ";
+	break;
+	default:
+	cout << "value of x unknown";
+	}
 	*/
-/*
-	for (int i = 0; i < maze.size(); i++) {
+	cout << endl;
+
+	for (int i = 0; i < 6; i++) {                                      //delete when done, used to see if directions were working
+		cout << maze[0][0][1].buff[i];
+	}
+
+	cout << endl;
+	cout << "Print cell : ";
+	printCell(currentPos);
+
+	//currentPos.xcoord = 3;
+	cout << endl;
+	cout << "Print cell : ";
+	printCell(currentPos);
+
+
+	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns; j++) {
-			for (int j = 0; j < 6; j++) {
+			for (int k = 0; k < levels; k++) {
 
-				cout << maze[i][j].buff[j];
-			}cout << " ";
+				if (currentPos.buff[0] == '1') {
+					cout << "N ";
+					currentPos = maze[i][j - 1][k];
+					continue;
+				}
+				else if (currentPos.buff[1] == '1') {
+					cout << "E ";
+					currentPos = maze[i][j][k + 1];
+					continue;
+				}
+				else if (currentPos.buff[2] == '1') {
+					cout << "S ";
+					currentPos = maze[i][j + 1][k];
+					continue;
+				}
+				else if (currentPos.buff[3] == '1') {
+					cout << "W ";
+					currentPos = maze[i][j][k - 1];
+					continue;
+				}
+				else if (currentPos.buff[4] == '1') {
+					cout << "U ";
+					currentPos = maze[i + 1][j][k];
+					continue;
+				}
+				else if (currentPos.buff[5] == '1') {
+					cout << "D ";
+					currentPos = maze[i - 1][j][k];
+					continue;
+				}
+
+			}
 		}
 	}
-	*/
 
-
-
-	//cout << "\n" << maze[1].buff[0];
-
-	//cout << maze[3].buff[5];
-	
-	cout << endl;
-
-
-	/*for (int i = 0; i < 20; i++) {
-		cout << "\n Character in maze: " << maze[0].buff[i] << endl;
-	}
-
-	/*
-	for (int i = 0; i < buffer.size(); i++) {
-		cout << buffer[i] << " ";
-	}
-	cout << endl;
-	*/
-
-
-
-	/*
-	//printVec(buffer);
-	for (int i = 0; i < buffer.size(); i++) {
-		cout << buffer[i] << " ";
-	}
-	cout << endl;
-
-	*/
-	/*
-
-
-
-	while ( !fin.eof()) {
-		fin.get(mychar);
-		if (mychar == ' ' || mychar == '\n') {
-			break;
-		}
-		//cout << mychar;
-		buffer.push_back(mychar);
-	}
-
-
-	cout << endl;
-	cout << "Buffer size is: " << buffer.size() << endl;
-	for (int i = 0; i < buffer.size(); i++) {
-		cout << buffer[i] << " ";
-	}
-	cout << "\n";
-	*/
 }
