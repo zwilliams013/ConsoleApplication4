@@ -11,11 +11,19 @@
 
 using namespace std;
 
+
+
 struct cell {
 	vector<char> buff;
 	int xcoord, ycoord, zcoord;
 	bool visited;
 	bool end;
+	cell *parent;
+	cell *prev;
+
+	vector<int> nbrs;
+	
+
 };
 
 /*
@@ -203,92 +211,100 @@ int main() {
 	printCell(maze[startx][starty][startz]);   //print the start cell
 
 	stack<cell> mazeStack;
-
 	mazeStack.push(currentPos);
-	mazeStack.push(endPos);
-	cout << "Printing stack ";
-	printStack(mazeStack);
 
+	//mazeStack.push(currentPos);
+	//mazeStack.push(endPos);
+	//cout << "Printing stack ";
+	//printStack(mazeStack);
+
+	currentPos.prev = NULL;
 
 	//DFS implementation
-	while (!maze[i][j][k].end) {
-		/*if (count == 55) {
+	while (!currentPos.end) {
+		if (count == 15) {
 			break;
-		}*/
-		if (maze[i][j][k].buff[0] == '1' && maze[i][j - 1][k].visited != true) {
+		}
+		if (currentPos.buff[0] == '1' && currentPos.visited!= true) {
 			cout << "N ";
 			mazeDirections.push_back('N');
 			count++;
 			j -= 1;
-			currentPos = maze[i][j][k];
-			mazeStack.push(maze[i][j][k]);
-			maze[i][j][k].visited = true;
+			currentPos.ycoord -=1;
+			mazeStack.push(currentPos);
+			currentPos.visited = true;
 			printCell(currentPos);
+			printStack(mazeStack);
 			// continue;
 		}
-		else if (maze[i][j][k].buff[1] == '1' && maze[i][j][k + 1].visited != true) {
+		else if (currentPos.buff[1] == '1' && maze[i][j][k + 1].visited != true) {
 			cout << "E ";
 			mazeDirections.push_back('E');
 			count++;
 			k += 1;
-			currentPos = maze[i][j][k];
-			mazeStack.push(maze[i][j][k]);
-			maze[i][j][k].visited = true;
+			currentPos.zcoord +=1;
+			mazeStack.push(currentPos);
+			currentPos.visited = true;
 			printCell(currentPos);
+			printStack(mazeStack);
 			//  continue;
 		}
-		else if (maze[i][j][k].buff[2] == '1' && maze[i][j + 1][k].visited != true) {
+		else if (currentPos.buff[2] == '1' && maze[i][j + 1][k].visited != true) {
 			//   cout << "Count: " << count << endl;
 			count++;
 			cout << "S ";
 			mazeDirections.push_back('S');
 			j += 1;
-			currentPos = maze[i][j][k];
-			mazeStack.push(maze[i][j][k]);
-			maze[i][j][k].visited = true;
+			currentPos.ycoord +=1;
+			mazeStack.push(currentPos);
+			currentPos.visited = true;
 			printCell(currentPos);
+			printStack(mazeStack);
 			// continue;
 		}
-		else if (maze[i][j][k].buff[3] == '1' && maze[i][j][k - 1].visited != true) {
+		else if (currentPos.buff[3] == '1' && maze[i][j][k - 1].visited != true) {
 			cout << "W ";
 			count++;
 			mazeDirections.push_back('W');
 			k -= 1;
-			currentPos = maze[i][j][k];
-			mazeStack.push(maze[i][j][k]);
-			maze[i][j][k].visited = true;
+			currentPos.zcoord -= 1;
+			mazeStack.push(currentPos);
+			currentPos.visited = true;
 			printCell(currentPos);
+			printStack(mazeStack);
 			// continue;
 		}
-		else if (maze[i][j][k].buff[4] == '1' && maze[i + 1][j][k].visited != true) {
+		else if (currentPos.buff[4] == '1' && maze[i+1][j][k].visited != true) {
 			//cout << "Count: " << count << endl;
 			count++;
 			cout << "U ";
 			mazeDirections.push_back('U');
 			i += 1;
-			currentPos = maze[i][j][k];
-			mazeStack.push(maze[i][j][k]);
-			maze[i][j][k].visited = true;
+			currentPos.xcoord += 1;
+			mazeStack.push(currentPos);
+			currentPos.visited = true;
 			printCell(currentPos);
+			printStack(mazeStack);
 			//continue;
 		}
-		else if (maze[i][j][k].buff[5] == '1' && maze[i - 1][j][k].visited != true) {
+		else if (currentPos.buff[5] == '1' && maze[i - 1][j][k].visited != true) {
 			count++;
 			cout << "D ";
 			mazeDirections.push_back('D');
 			i -= 1;
-			currentPos = maze[i][j][k];
-			mazeStack.push(maze[i][j][k]);
-			maze[i][j][k].visited = true;
+			currentPos.xcoord -= 1; 
+			mazeStack.push(currentPos);
+			currentPos.visited = true;
 			printCell(currentPos);
+			printStack(mazeStack);
 
 			//continue;
 		}
-		else {
-			mazeStack.pop();
-			mazeDirections.pop_front();
-			maze[i][j][k] = mazeStack.top();
-		}
+		//else {
+		//	mazeStack.pop();
+		//	mazeDirections.pop_front();
+		//	currentPos = mazeStack.top();
+		//}
 
 		/*
 		else if(maze[i][j][k].buff[0] == '1'){
